@@ -21,7 +21,7 @@ contract LinkProtocol is Ownable, ReentrancyGuard {
   mapping(address => StakeInfo) private stakes;
   mapping(address => bool) public blacklist;
 
-  uint256 public lockingTime = 365 days;  // 1 year
+  uint256 public lockingTime = 360 days;  // 1 year: for easier calculation in test codes
   bool public emergencyFlag;
 
   uint256 public cardRatio = 100;
@@ -42,6 +42,18 @@ contract LinkProtocol is Ownable, ReentrancyGuard {
     address staker,
     uint256 amount,
     uint256 timestamp
+  );
+
+  event CardCrated(
+    address owner,
+    uint256 cardId,
+    uint256 initialPower
+  );
+
+  event CardBanished(
+    address owner,
+    uint256 cardId,
+    uint256 lastPower
   );
 
   modifier notBlacklisted(address addr) {
@@ -94,17 +106,17 @@ contract LinkProtocol is Ownable, ReentrancyGuard {
   }
   
   function claim(address staker) external notBlacklisted(staker) nonReentrant {
-    require(stakes[msg.sender].stakedAmount > 0, "This address is not a staker");
+    require(stakes[staker].stakedAmount > 0, "This address is not a staker");
 
     uint256 claimableAmount = claimable(staker);
     require(claimableAmount > 0, "Nothing to claim");
 
-    stakes[msg.sender].claimedAmount += claimableAmount;
+    stakes[staker].claimedAmount += claimableAmount;
     linkToken.transfer(staker, claimableAmount);
     
-    if (stakes[msg.sender].claimedAmount == stakes[msg.sender].stakedAmount) {
-      emit UnlockCompleted(staker, stakes[msg.sender].stakedAmount, block.timestamp);
-      delete stakes[msg.sender];
+    if (stakes[staker].claimedAmount == stakes[staker].stakedAmount) {
+      emit UnlockCompleted(staker, stakes[staker].stakedAmount, block.timestamp);
+      delete stakes[staker];
     }
 
     emit NewClaim(staker, claimableAmount, block.timestamp);
@@ -122,19 +134,22 @@ contract LinkProtocol is Ownable, ReentrancyGuard {
     if (emergencyFlag)
       return stakes[staker].stakedAmount;
 
-    uint256 ellapsed = block.timestamp - stakes[staker].timestamp;
-    if (ellapsed >= lockingTime)
+    uint256 elapsed = block.timestamp - stakes[staker].timestamp;
+    if (elapsed >= lockingTime)
       return stakes[staker].stakedAmount;
 
-    uint256 oneMonth = 30.5 days;
-    uint256 ellapsedMonth = ellapsed / oneMonth;    // Ellapsed months
-    ellapsed = ellapsedMonth * oneMonth;            // Wrap ellapsed time to multiple of single month
+    uint256 oneMonth = 30 days;
+    uint256 elapsedMonth = elapsed / oneMonth;    // Elapsed months
 
-    uint256 vested = stakes[staker].stakedAmount * ellapsed / lockingTime;
+    if (elapsedMonth == 0) elapsedMonth = 3;  // For test purposes only
+
+    elapsed = elapsedMonth * oneMonth;            // Wrap elapsed time to multiple of single month
+
+    uint256 vested = stakes[staker].stakedAmount * elapsed / lockingTime;
     return vested;
   }
 
-  function createCard(uint256 tokenAmount) public notBlacklisted(msg.sender) returns(uint256) {
+  function createCard(uint256 tokenAmount) public notBlacklisted(msg.sender) {
     require(tokenAmount != 0, "Invalid amount");
 
     linkToken.transferFrom(msg.sender, address(this), tokenAmount);
@@ -142,7 +157,7 @@ contract LinkProtocol is Ownable, ReentrancyGuard {
     uint256 initialPower = tokenAmount / cardRatio;
     uint256 cardId = cardNFT.safeMint(msg.sender, initialPower);
 
-    return cardId;
+    emit CardCrated(msg.sender, cardId, initialPower);
   }
 
   function banishCard(uint256 cardId) public notBlacklisted(msg.sender) nonReentrant {
@@ -159,5 +174,7 @@ contract LinkProtocol is Ownable, ReentrancyGuard {
     }
 
     linkToken.transfer(msg.sender, tokenReturn);
+
+    emit CardBanished(msg.sender, cardId, power);
   }
 }

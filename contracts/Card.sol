@@ -28,6 +28,10 @@ contract Card is ERC721, ERC721Burnable, VRFv2SubscriptionManager {
     address protocolAddress;
     Counters.Counter private _tokenIdCounter;
 
+    event CardParamsFulfilled(
+        uint256 cardId
+    );
+
     modifier onlyOwnerOrProtocol() {
         require(protocolAddress == msg.sender || owner() == msg.sender, 
           "Link: msg.sender is not neither owner nor protocol");
@@ -76,6 +80,8 @@ contract Card is ERC721, ERC721Burnable, VRFv2SubscriptionManager {
 
         _infos[tokenId].valueSet = true;
         delete _randomRequests[requestId];
+
+        emit CardParamsFulfilled(tokenId);
     }
 
     function cardInfo(uint256 tokenId) public view returns(CardInfo memory) {

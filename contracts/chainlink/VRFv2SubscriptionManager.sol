@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// An example of a consumer contract that also owns and manages the subscription
 pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
