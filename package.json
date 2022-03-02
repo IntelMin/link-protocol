@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "test:local": "npx hardhat test --network local"
+  },
   "devDependencies": {
+    "ethers": "^5.5.4",
     "hardhat": "^2.9.0"
   },
   "dependencies": {
@@ -14,6 +18,8 @@
     "@openzeppelin/contracts": "^4.5.0",
     "@openzeppelin/hardhat-upgrades": "^1.14.0",
     "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "chai-bn": "^0.3.1",
     "dotenv": "^16.0.0",
     "solidity-coverage": "^0.7.20"
   }

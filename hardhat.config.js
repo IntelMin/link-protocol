@@ -25,13 +25,24 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 module.exports = {
   solidity: "0.8.7",
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
+    rinkeby: {
+      url: process.env.RINKEBY_RPC_URL || "",
       accounts: {
         mnemonic: process.env.MNEMONIC
       },
-      chainId: 3
+      chainId: 4
     },
+    local: {
+      url: "http://127.0.0.1:8545",
+      // accounts: {
+      //   mnemonic: process.env.MNEMONIC
+      // }
+    },
+    hardhat: {
+      forking: {
+        url: process.env.RINKEBY_RPC_URL || "",
+      },
+    }
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,

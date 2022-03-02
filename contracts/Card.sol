@@ -25,11 +25,22 @@ contract Card is ERC721, ERC721Burnable, VRFv2SubscriptionManager {
     mapping(uint256 => CardInfo) private _infos;
     mapping(uint256 => uint256) private _randomRequests;
 
+    address protocolAddress;
     Counters.Counter private _tokenIdCounter;
+
+    modifier onlyOwnerOrProtocol() {
+        require(protocolAddress == msg.sender || owner() == msg.sender, 
+          "Link: msg.sender is not neither owner nor protocol");
+        _;
+    }
 
     constructor() ERC721("Card", "CARD") {}
 
-    function safeMint(address to, uint256 _initialPower) public onlyOwner returns(uint256) {
+    function setProtocolAddress(address _protocolAddress) external onlyOwner {
+      protocolAddress = _protocolAddress;
+    }
+
+    function safeMint(address to, uint256 _initialPower) public onlyOwnerOrProtocol returns(uint256) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -77,7 +88,7 @@ contract Card is ERC721, ERC721Burnable, VRFv2SubscriptionManager {
         return _infos[tokenId].initialPower + _infos[tokenId].dailyGrow * dayElapsed;
     }
 
-    function banish(uint256 tokenId) public onlyOwner {
+    function banish(uint256 tokenId) public onlyOwnerOrProtocol {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "caller is not owner nor approved");
         _burn(tokenId);
 
