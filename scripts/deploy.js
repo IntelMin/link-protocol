@@ -13,17 +13,33 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  const signers = await ethers.getSigners();
-  console.log("Deploying from ", signers[0].address);
-  
-  // We get the contract to deploy
-  const VelvetNFT = await ethers.getContractFactory('VelvetNFT');
-  //await velvetNFT.deploy();
-  const velvetNFT = await upgrades.deployProxy(VelvetNFT, { kind: 'uups' });
-  
-  await velvetNFT.deployed();
+  var protocol, linkToken, cardNFT;
 
-  console.log("VelvetNFT deployed to:", velvetNFT.address);
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying from ", deployer.address);
+  
+  const LinkProtocol = await ethers.getContractFactory('LinkProtocol');
+  protocol = await upgrades.deployProxy(LinkProtocol, { kind: 'uups' });
+  await protocol.deployed();    
+  console.log("Protocol deployed at:", protocol.address);
+  
+  const Link = await ethers.getContractFactory('Link');
+  linkToken = await Link.deploy();
+  await linkToken.deployed();
+  console.log("LINK deployed at:", linkToken.address);
+
+  const Card = await ethers.getContractFactory('Card');
+  cardNFT = await Card.deploy("0x6168499c0cFfCaCD319c818142124B7A15E857ab");  // Rinkeby VRF Coordinator
+  await cardNFT.deployed();    
+  console.log("CARD deployed at:", cardNFT.address);
+
+  await linkToken.setProtocolAddress(protocol.address);
+  await cardNFT.setProtocolAddress(protocol.address);
+
+  await protocol.setLinkToken(linkToken.address);
+  await protocol.setCardNFT(cardNFT.address);
+
+  console.log("Params are set successfully.");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

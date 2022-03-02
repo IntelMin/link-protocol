@@ -1,0 +1,162 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x58c823851c7701BbAAc8F7B2Ec42e8ee99440cb7",
+      "txHash": "0xfb33db37cf4e7c46a9b89f040cc0ee46a025885c7b7046c6601cba8cf428127b",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "acf077d1875713e03d2fe28803f835c082558beff6fe41fafa757c009cdfd982": {
+      "address": "0x526D2e25544F2c489ee094deb770FED9B9F2dC4B",
+      "txHash": "0x2063ad7972d8a8eaec7c651488feb42113178a8903476634936984f88de2adaa",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:39"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:44"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\utils\\ContextUpgradeable.sol:36"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:22"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:87"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\security\\ReentrancyGuardUpgradeable.sol:74"
+          },
+          {
+            "contract": "ERC1967UpgradeUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\ERC1967\\ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "contract": "UUPSUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin\\contracts-upgradeable\\proxy\\utils\\UUPSUpgradeable.sol:107"
+          },
+          {
+            "contract": "LinkProtocol",
+            "label": "linkToken",
+            "type": "t_contract(Link)4314",
+            "src": "contracts\\LinkProtocol.sol:14"
+          },
+          {
+            "contract": "LinkProtocol",
+            "label": "cardNFT",
+            "type": "t_contract(Card)4250",
+            "src": "contracts\\LinkProtocol.sol:15"
+          },
+          {
+            "contract": "LinkProtocol",
+            "label": "stakes",
+            "type": "t_mapping(t_address,t_struct(StakeInfo)4344_storage)",
+            "src": "contracts\\LinkProtocol.sol:23"
+          },
+          {
+            "contract": "LinkProtocol",
+            "label": "blacklist",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts\\LinkProtocol.sol:24"
+          },
+          {
+            "contract": "LinkProtocol",
+            "label": "lockingTime",
+            "type": "t_uint256",
+            "src": "contracts\\LinkProtocol.sol:26"
+          },
+          {
+            "contract": "LinkProtocol",
+            "label": "emergencyFlag",
+            "type": "t_bool",
+            "src": "contracts\\LinkProtocol.sol:27"
+          },
+          {
+            "contract": "LinkProtocol",
+            "label": "cardRatio",
+            "type": "t_uint256",
+            "src": "contracts\\LinkProtocol.sol:29"
+          }
+        ],
+        "types": {
+          "t_contract(Link)4314": {
+            "label": "contract Link"
+          },
+          "t_contract(Card)4250": {
+            "label": "contract Card"
+          },
+          "t_mapping(t_address,t_struct(StakeInfo)4344_storage)": {
+            "label": "mapping(address => struct LinkProtocol.StakeInfo)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(StakeInfo)4344_storage": {
+            "label": "struct LinkProtocol.StakeInfo",
+            "members": [
+              {
+                "label": "stakedAmount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "timestamp",
+                "type": "t_uint256"
+              },
+              {
+                "label": "claimedAmount",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          }
+        }
+      }
+    }
+  }
+}

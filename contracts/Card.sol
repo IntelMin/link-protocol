@@ -19,6 +19,7 @@ contract Card is ERC721, ERC721Burnable, VRFv2SubscriptionManager {
         Symbols symbol;
         uint8 tierNumber;
         uint256 dailyGrow;
+        uint256 vrfRequestId;
         bool valueSet;
     }
 
@@ -38,7 +39,7 @@ contract Card is ERC721, ERC721Burnable, VRFv2SubscriptionManager {
         _;
     }
 
-    constructor() ERC721("Card", "CARD") {}
+    constructor(address _vrfCoordinatorMock) ERC721("Card", "CARD") VRFv2SubscriptionManager(_vrfCoordinatorMock) {}
 
     function setProtocolAddress(address _protocolAddress) external onlyOwner {
       protocolAddress = _protocolAddress;
@@ -53,6 +54,7 @@ contract Card is ERC721, ERC721Burnable, VRFv2SubscriptionManager {
         _infos[tokenId].mintedAt = block.timestamp;
         
         uint256 requestId = requestRandomWords(3);
+        _infos[tokenId].vrfRequestId = requestId;
         _randomRequests[requestId] = tokenId;
 
         return tokenId;
@@ -91,6 +93,9 @@ contract Card is ERC721, ERC721Burnable, VRFv2SubscriptionManager {
 
     function getPower(uint256 tokenId) public view returns(uint256) {
         uint256 dayElapsed = (block.timestamp - _infos[tokenId].mintedAt) / 1 days;
+
+        if (dayElapsed == 0) dayElapsed = 1;
+
         return _infos[tokenId].initialPower + _infos[tokenId].dailyGrow * dayElapsed;
     }
 

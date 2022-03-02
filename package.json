@@ -2,9 +2,12 @@
   "name": "link-staking",
   "version": "1.0.0",
   "main": "index.js",
+  "repository": "https://github.com/IntelMin/link-protocol",
+  "author": "IntelMin <intelmin0915@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test:local": "npx hardhat test --network local"
+    "test:local": "npx hardhat test --network local",
+    "deploy:rinkeby": "npx hardhat run --network rinkeby scripts/deploy.js"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
@@ -17,12 +20,12 @@
     "@chainlink/contracts": "^0.4.0",
     "@nomiclabs/hardhat-etherscan": "^3.0.2",
     "@openzeppelin/contracts": "^4.5.0",
+    "@openzeppelin/contracts-upgradeable": "^4.5.1",
     "@openzeppelin/hardhat-upgrades": "^1.14.0",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "chai-bn": "^0.3.1",
     "dotenv": "^16.0.0",
-    "erc-20-abi": "^1.0.0",
     "solidity-coverage": "^0.7.20"
   }
 }

@@ -1,42 +1,53 @@
-# Advanced Sample Hardhat Project
+# Protocol for locking & yield generation of LINK ERC-20 Token
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+The project consists of three main contracts: Protocol, LINK ERC-20, CARD ERC-721
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+LINK is deposited to be locked over one year and to be vested linearly every month.
 
-Try running some of the following tasks:
+CARD is issued by depositing some LINK, and protocol generates new LINK daily based on random params until the owner banish the card and withdraw LINK from protocol.
 
+# Setting up Environment
+
+Make a copy of .env.example, and rename it to `.env`.
+Create an alchemy account and api key for deploying contracts. This rpc url is also used to fork rinkeby network to launch a local node for test purposes.
+Write your mnemonic to deploy contracts to live networks.
+Create an etherscan api key for verifying contracts on Etherscan.
 ```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
+RINKEBY_RPC_URL=https://eth-rinkeby.alchemyapi.io/v2/<YOUR ALCHEMY KEY>
+MNEMONIC=abc123abc123abc123abc123abc123abc123abc123abc123abc123abc123abc1
+ETHERSCAN_API_KEY=ABC123ABC123ABC123ABC123ABC123ABC1
+```
+
+Install npm packages.
+```shell
+npm install
+```
+
+# Local Test
+
+Run a local node. It forks Rinkeby Testnet by default.
+```shell
 npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.js
-node scripts/deploy.js
-npx eslint '**/*.js'
-npx eslint '**/*.js' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
 ```
 
-# Etherscan verification
-
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
-
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
-
+Run test codes.
 ```shell
-hardhat run --network ropsten scripts/deploy.js
+npm run test:local
 ```
 
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
+# Deploy
+
+Deploy contracts to Rinkeby network.
+```shell
+hardhat run --network rinkeby scripts/deploy.js
+```
+
+# Verify
+
+To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Rinkeby.
+
+copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
 
 ```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
+npx hardhat verify --network rinkeby DEPLOYED_CONTRACT_ADDRESS
 ```

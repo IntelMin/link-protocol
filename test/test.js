@@ -8,13 +8,11 @@ chai.use(require('chai-bn')(BigNumber));
 chai.use(require("chai-as-promised"));
 chai.should();
 
-const erc20_abi = require('erc-20-abi');
-
 // Wallets
 var owner, signer1, signer2, signer3;
 
 // Contracts
-var protocol, linkToken, cardNFT;
+var protocol, linkToken, cardNFT, vrfMock;
 
 // Useful big numbers
 const ethExp = BigNumber.from("10").pow(18);
@@ -22,16 +20,16 @@ const thousand = BigNumber.from("1000").mul(ethExp);
 const ten = BigNumber.from("10").mul(ethExp);
 const zero = BigNumber.from("0");
 
-describe('Stake', async function () {
-
+describe('Deploy', async function () {
+  
   it('deploys protocol', async function () {
 
     [owner, signer1, signer2, signer3] = await ethers.getSigners();
 
     const LinkProtocol = await ethers.getContractFactory('LinkProtocol');
 
-    // protocol = await upgrades.deployProxy(LinkProtocol, { kind: 'uups' });
-    protocol = await LinkProtocol.deploy();
+    protocol = await upgrades.deployProxy(LinkProtocol, { kind: 'uups' });
+    //protocol = await LinkProtocol.deploy();
     await protocol.deployed();    
 
     // console.log("Protocol deployed at:", protocol.address);
@@ -49,9 +47,13 @@ describe('Stake', async function () {
 
   it('deploys CARD ERC-721 NFT', async function () {
 
+    const VRFCoordinatorV2Mock = await ethers.getContractFactory('VRFCoordinatorV2Mock01');
     const Card = await ethers.getContractFactory('Card');
 
-    cardNFT = await Card.deploy();
+    vrfMock = await VRFCoordinatorV2Mock.deploy();
+    await vrfMock.deployed();
+
+    cardNFT = await Card.deploy(vrfMock.address);
     await cardNFT.deployed();    
 
     // console.log("CARD deployed at:", cardNFT.address);
@@ -64,6 +66,9 @@ describe('Stake', async function () {
     await protocol.setLinkToken(linkToken.address);
     await protocol.setCardNFT(cardNFT.address);
   })
+})
+
+describe('Stake', async function () {
   
   it('could mint LINK', async function () {
     await linkToken.mint(signer1.address, thousand);
@@ -124,16 +129,39 @@ describe('Card', async function () {
   it('could create a card by paying tokens', async function() {
     await linkToken.connect(signer1).approve(protocol.address, thousand);
     await expect(protocol.connect(signer1).createCard(thousand))
-      .to.emit(protocol, 'CardCrated').withArgs(signer1.address, zero, ten);
+      .to.emit(protocol, 'CardCrated').withArgs(signer1.address, zero, ten)
+      .to.emit(vrfMock, 'RandomWordsRequested');
     expect(await linkToken.balanceOf(signer1.address)).bignumber.equals(zero);
   })
 
+  let cardId = zero;
+  it('could fulfill random words by vrf mock', async function() {
+    const info = await cardNFT.cardInfo(cardId);
+    await expect(vrfMock.fulfillRandomWords(info.vrfRequestId, cardNFT.address))
+      .to.emit(cardNFT, 'CardParamsFulfilled').withArgs(cardId);
+  })
+
+  let cardInfo;
   it('card could bring random values from Chainlink VRF', async function() {
-    const info = await cardNFT.cardInfo(zero);
-    console.log(info.valueSet);
-    console.log(info.dailyGrow);
-    expect(info.valueSet).to.be.equals(true);
-    expect(info.dailyGrow).to.be.bignumber.greaterThan(zero);
+    cardInfo = await cardNFT.cardInfo(cardId);
+    expect(cardInfo.valueSet).to.be.equals(true);
+    expect(cardInfo.dailyGrow).to.be.bignumber.greaterThan(zero);
+  })
+
+  it('card could grow power', async function() {
+    const currentPower = await cardNFT.getPower(cardId);
+    expect(currentPower).to.be.bignumber.greaterThan(cardInfo.initialPower);
+  })
+
+  it('owner could banish a card and receive more LINK in return', async function() {
+    await cardNFT.connect(signer1).approve(protocol.address, cardId);
+    await protocol.connect(signer1).banishCard(cardId);
+    expect(await linkToken.balanceOf(signer1.address)).bignumber.greaterThan(thousand);
+    expect(await cardNFT.balanceOf(signer1.address)).bignumber.equals(zero);
+  })
+
+  it('banished card is removed permanently', async function() {
+    await expect(cardNFT.ownerOf(cardId)).to.be.revertedWith('ERC721: owner query for nonexistent token');
   })
 
 })

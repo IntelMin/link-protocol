@@ -39,8 +39,8 @@ contract VRFv2SubscriptionManager is VRFConsumerBaseV2, Ownable {
   uint256 public s_requestId;
   uint64 public s_subscriptionId;
 
-  constructor() VRFConsumerBaseV2(vrfCoordinator) {
-    COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
+  constructor(address _vrfCoordinatorMock) VRFConsumerBaseV2(_vrfCoordinatorMock) {
+    COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinatorMock); // For test purposes only
     LINKTOKEN = LinkTokenInterface(link_token_contract);
     //Create a new subscription when you deploy the contract.
     createNewSubscription();
@@ -74,7 +74,7 @@ contract VRFv2SubscriptionManager is VRFConsumerBaseV2, Ownable {
     consumers[0] = address(this);
     s_subscriptionId = COORDINATOR.createSubscription();
     // Add this contract as a consumer of its own subscription.
-    COORDINATOR.addConsumer(s_subscriptionId, consumers[0]);
+    // COORDINATOR.addConsumer(s_subscriptionId, consumers[0]); // Comment this action for test purposes only
   }
 
   // Assumes this contract owns link.

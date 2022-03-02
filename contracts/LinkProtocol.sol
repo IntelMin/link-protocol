@@ -2,12 +2,14 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "./Link.sol";
 import "./Card.sol";
 
-contract LinkProtocol is Ownable, ReentrancyGuard {
+contract LinkProtocol is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
 
   Link public linkToken;
   Card public cardNFT;
@@ -21,10 +23,10 @@ contract LinkProtocol is Ownable, ReentrancyGuard {
   mapping(address => StakeInfo) private stakes;
   mapping(address => bool) public blacklist;
 
-  uint256 public lockingTime = 360 days;  // 1 year: for easier calculation in test codes
+  uint256 public lockingTime;  // 1 year: for easier calculation in test codes
   bool public emergencyFlag;
 
-  uint256 public cardRatio = 100;
+  uint256 public cardRatio;
 
   event NewStake(
     address staker,
@@ -61,7 +63,23 @@ contract LinkProtocol is Ownable, ReentrancyGuard {
     _;
   }
 
-  constructor() {}
+  // /// @custom:oz-upgrades-unsafe-allow constructor
+  // constructor() initializer {}
+
+  function initialize() public initializer {
+    __Ownable_init();
+    __ReentrancyGuard_init();
+    __UUPSUpgradeable_init();
+
+    lockingTime = 360 days;
+    cardRatio = 100;
+  }
+
+  function _authorizeUpgrade(address newImplementation)
+    internal
+    onlyOwner
+    override
+  {}
 
   function setLinkToken(address _linkToken) external onlyOwner {
     require(_linkToken != address(0), "Invalid token address");
